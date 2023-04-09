@@ -6,244 +6,233 @@
 /*   By: nelallao <nelallao@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/30 18:24:10 by nelallao          #+#    #+#             */
-/*   Updated: 2023/04/02 22:34:28 by nelallao         ###   ########.fr       */
+/*   Updated: 2023/04/09 23:31:39 by nelallao         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "so_long.h"
 
-#include <stdio.h>
-#include <mlx.h>
-
-void	ft_check_file_ber(char *string)
+void	ft_error(void)
 {
-	int	len;
+	write(1, "Somthing is wrong about mlx\n", 28);
+	exit(EXIT_FAILURE);
+}
 
-	len = ft_strlen(string);
-	if (string[len - 1] != 'r' || string[len - 2] != 'e'
-		|| string[len - 3] != 'b' || string[len - 4] != '.')
+void	ft_keyw(t_elements	*s)
+{
+	if (!(s->map[s->y_p - 1][s->x_p] == '1') && !(s->map[s->y_p - 1][s->x_p] == 'E'))
 	{
-		ft_putstr_fd("misiing `.ber` file, Please check it\n", 2);
-		exit(EXIT_FAILURE);
+		if (s->map[s->y_p - 1][s->x_p] == 'C')
+			s->c_count++;
+		s->map[s->y_p - 1][s->x_p] = 'P';
+		s->map[s->y_p][s->x_p] = '0';
+	}
+	else if (s->map[s->y_p - 1][s->x_p] == 'E' && s->c_count == s->c)
+	{
+		s->map[s->y_p - 1][s->x_p] = 'P';
+		s->map[s->y_p][s->x_p] = '0';
+		exit(EXIT_SUCCESS);
 	}
 }
 
-char	*ft_map_holder(char *string)
+void	ft_keys(t_elements	*s)
 {
-	int			fd;
-	char static	map_data[500000];
-
-	fd = open(string, O_RDONLY);
-	if (fd < 0)
+	if (!(s->map[s->y_p + 1][s->x_p] == '1') && !(s->map[s->y_p + 1][s->x_p] == 'E'))
 	{
-		ft_putstr_fd("Error Map cannot be loaded\n", 2);
-		exit(EXIT_FAILURE);
+		if (s->map[s->y_p + 1][s->x_p] == 'C')
+			s->c_count++;
+		s->map[s->y_p + 1][s->x_p] = 'P';
+		s->map[s->y_p][s->x_p] = '0';
 	}
-	else
-		read(fd, map_data, BUFFER_SIZE);
-	return (map_data);
-}
-
-int	ft_check_map_dimension(char **splited)
-{
-	int		i;
-	size_t	len;
-
-	i = 0;
-	len = ft_strlen(splited[0]);
-	while (splited[i])
+	else if (s->map[s->y_p + 1][s->x_p] == 'E' && s->c_count == s->c)
 	{
-		if (ft_strlen(splited[i]) != len)
-			return (true);
-		i++;
+		s->map[s->y_p + 1][s->x_p] = 'P';
+		s->map[s->y_p][s->x_p] = '0';
+		exit(EXIT_SUCCESS);
 	}
-	return (false);
 }
 
-int	ft_check_for_double_line(char *map_data)
+void	ft_keyd(t_elements	*s)
 {
-	int	i;
 
-	i = 0;
-	while (map_data[i])
+	if (!(s->map[s->y_p][s->x_p + 1] == '1') && !(s->map[s->y_p][s->x_p + 1] == 'E'))
 	{
-		if (map_data[i] == '\n' && map_data[i + 1] == '\n')
-			return (true);
-		i++;
+		if (s->map[s->y_p][s->x_p + 1] == 'C')
+			s->c_count++;
+		s->map[s->y_p][s->x_p + 1] = 'P';
+		s->map[s->y_p][s->x_p] = '0';
 	}
-	return (false);
-}
-
-char	**ft_split_map(char *map_data)
-{
-	char	**split_map;
-
-	split_map = ft_split(map_data, '\n');
-	if (!split_map)
-		return (NULL);
-	return (split_map);
-}
-
-int	ft_check_map_walls(char **splited)
-{
-	int	x;
-	int	y;
-
-	x = -1;
-	y = 0;
-	while (splited[y][++x])
-		if (splited[y][x] != '1')
-			return (true);
-	x--;
-	y--;
-	while (splited[++y])
-		if (splited[y][x] != '1')
-			return (true);
-	y--;
-	while (--x > 0)
-		if (splited[y][x] != '1')
-			return (true);
-	while (y-- > 0)
-		if (splited[y][x] != '1')
-			return (true);
-	return (false);
-}
-
-void ft_initialize_elements(t_elements *elements)
-{
-	elements->p = 0;
-	elements->e = 0;
-	elements->c = 0;
-	elements->x = 0;
-	elements->y = 0;
-	elements->random_data = 0;
-}
-
-int	ft_check_elements(char **split)
-{
-	t_elements	elements;
-
-	ft_initialize_elements(&elements);
-	while (split[elements.y])
+	else if (s->map[s->y_p][s->x_p + 1] == 'E' && s->c_count == s->c)
 	{
-		elements.x = 0;
-		while (split[elements.y][elements.x])
-		{
-			if (split[elements.y][elements.x] == 'C')
-				elements.c++;
-			if (split[elements.y][elements.x] == 'P')
-				elements.p++;
-			if (split[elements.y][elements.x] == 'E')
-				elements.e++;
-			if (split[elements.y][elements.x] != '0'
-			&& split[elements.y][elements.x] != '1')
-				elements.random_data++;
-		elements.x++;
-		}
-		elements.y++;
+		s->map[s->y_p][s->x_p + 1] = 'P';
+		s->map[s->y_p][s->x_p] = '0';
+		exit(EXIT_SUCCESS);
 	}
-	if (elements.c <= 0 || (elements.p > 1 || elements.p <= 0)
-		|| (elements.e > 1 || elements.e <= 0) || elements.random_data < 0)
-		return (true);
-	return (false);
 }
 
-void	ft_flood_fill(int x, int y, char **duplicated_map)
+void	ft_keya(t_elements	*s)
 {
-	if (duplicated_map[y][x] == '1')
-		return ;
-	duplicated_map[y][x] = '1';
-	ft_flood_fill(x + 1, y, duplicated_map);
-	ft_flood_fill(x - 1, y, duplicated_map);
-	ft_flood_fill(x, y - 1, duplicated_map);
-	ft_flood_fill(x, y + 1, duplicated_map);
-}
 
-int	ft_check_flood_fill(char **duplicated_map)
-{
-	int	x;
-	int	y;
-
-	y = 0;
-	while (duplicated_map[y])
+	if (!(s->map[s->y_p][s->x_p - 1] == '1') && !(s->map[s->y_p][s->x_p - 1] == 'E'))
 	{
-		x = 0;
-		while (duplicated_map[y][x])
-		{
-			if (duplicated_map[y][x] == 'C' || duplicated_map[y][x] == 'E')
-				return (true);
-			x++;
-		}
-		y++;
+		if (s->map[s->y_p][s->x_p - 1] == 'C')
+			s->c_count++;
+		s->map[s->y_p][s->x_p - 1] = 'P';
+		s->map[s->y_p][s->x_p] = '0';
 	}
-	return (false);
+	else if (s->map[s->y_p][s->x_p - 1] == 'E' && s->c_count == s->c)
+	{
+		s->map[s->y_p][s->x_p - 1] = 'P';
+		s->map[s->y_p][s->x_p] = '0';
+		exit(EXIT_SUCCESS);
+	}
 }
 
-int	ft_give_index_x(char **splited_map)
+void	ft_keyhok(mlx_key_data_t keydata, void *i)
 {
-	int	x;
-	int	y;
+	t_elements	*s;
 
-	y = 0;
-	while (splited_map[y])
-	{
-		x = 0;
-		while (splited_map[y][x])
-		{
-			if (splited_map[y][x] == 'P')
-				return (x);
-			x++;
-		}
-		y++;
-	}
-	return (false);
-}
-
-int	ft_give_index_y(char **splited_map)
-{
-	int	x;
-	int	y;
-
-	y = 0;
-	while (splited_map[y])
-	{
-		x = 0;
-		while (splited_map[y][x])
-		{
-			if (splited_map[y][x] == 'P')
-				return (y);
-			x++;
-		}
-		y++;
-	}
-	return (false);
+	s = (t_elements *) i;
+	if (keydata.key == MLX_KEY_W && keydata.action == MLX_PRESS)
+		ft_keyw(s);
+	if (keydata.key == MLX_KEY_S && keydata.action == MLX_PRESS)
+		ft_keys(s);
+	if (keydata.key == MLX_KEY_D && keydata.action == MLX_PRESS)
+		ft_keyd(s);
+	if (keydata.key == MLX_KEY_A && keydata.action == MLX_PRESS)
+		ft_keya(s);
+	ft_putmap(s->map, s);
 }
 
 int	main(int ac, char *av[])
 {
-	int		x;
-	int		y;
-	char	*map_data;
-	char	**splited;
-	char	**duplicated;
+	t_elements	s;
 
 	(void) ac;
-	ft_check_file_ber(av[1]);
-	map_data = ft_map_holder(av[1]);
-	splited = ft_split_map(map_data);
-	x = ft_give_index_x(splited);
-	y = ft_give_index_y(splited);
-	duplicated = ft_split_map(map_data);
-	ft_flood_fill(x, y, duplicated);
-	if (ft_check_map_dimension(splited) || ft_check_for_double_line(map_data)
-		|| ft_check_elements(splited) || ft_check_map_walls(splited) || ft_check_flood_fill(duplicated))
+	// s.mlx = mlx_init(750, 300, "Donpha", false);
+	s.map = ft_check_map(av[1]);
+	ft_count(&s, s.map);
+	printf("%s", s.map[1]);
+	// printf("%d", s.c);
+	// ft_putmap(s.map, &s);
+	// mlx_key_hook(s.mlx, ft_keyhok, &s);
+	// mlx_loop(s.mlx);
+	// mlx_terminate(s.mlx);
+
+}
+
+void	ft_putmap(char **map, t_elements *s)
+{
+	mlx_image_t		*image;
+	mlx_texture_t	*texture;
+
+	s->x_p = ft_i_x(s->map);
+	s->y_p = ft_i_y(s->map);
+	texture = mlx_load_png("./images/floor.png");
+	image = mlx_texture_to_image(s->mlx, texture);
+	ft_floor(map, s->mlx, image);
+	ft_putwalls(map, s->mlx, image, texture);
+	ft_coins(map, s->mlx, image, texture);
+	ft_pexit(map, s->mlx, image, texture);
+	texture = mlx_load_png("./images/darius.png");
+	image = mlx_texture_to_image(s->mlx, texture);
+	mlx_image_to_window(s->mlx, image, (s->x_p * 50), (s->y_p * 50));
+}
+
+void	ft_putwalls(char **map, mlx_t *mlx, mlx_image_t *img, mlx_texture_t *tx)
+{
+	int	y;
+	int	x;
+
+	tx = mlx_load_png("./images/wall.png");
+	img = mlx_texture_to_image(mlx, tx);
+	y = 0;
+	while (map[y])
 	{
-		ft_putstr_fd("Map cannot be loaded, check it\n", 2);
-		return (EXIT_FAILURE);
+		x = 0;
+		while (map[y][x])
+		{
+			if (map[y][x] == '1')
+				mlx_image_to_window(mlx, img, (x * 50), (y * 50));
+			x++;
+		}
+		y++;
 	}
-	void *wn;
-	void *mlx = mlx_init();
-	wn = mlx_new_window(mlx, 100, 100, "donpha");
-	// void *pl = mlx_xpm_file_to_image(mlx, )
-	mlx_loop(mlx);
+}
+
+void	ft_floor(char **map, mlx_t *mlx, mlx_image_t *img)
+{
+	int	y;
+	int	x;
+
+	y = 0;
+	while (map[y])
+	{
+		x = 0;
+		while (map[y][x])
+		{
+			mlx_image_to_window(mlx, img, (x * 50), (y * 50));
+			x++;
+		}
+		y++;
+	}
+}
+
+void	ft_coins(char **map, mlx_t *mlx, mlx_image_t *img, mlx_texture_t *tx)
+{
+	int	y;
+	int	x;
+
+	tx = mlx_load_png("./images/coins.png");
+	img = mlx_texture_to_image(mlx, tx);
+	y = 0;
+	while (map[y])
+	{
+		x = 0;
+		while (map[y][x])
+		{
+			if (map[y][x] == 'C')
+				mlx_image_to_window(mlx, img, (x * 50), (y * 50));
+			x++;
+		}
+		y++;
+	}
+}
+
+void	ft_pexit(char **map, mlx_t *mlx, mlx_image_t *img, mlx_texture_t *tx)
+{
+	int	y;
+	int	x;
+
+	tx = mlx_load_png("./images/exit.png");
+	img = mlx_texture_to_image(mlx, tx);
+	y = 0;
+	while (map[y])
+	{
+		x = 0;
+		while (map[y][x])
+		{
+			if (map[y][x] == 'E')
+				mlx_image_to_window(mlx, img, (x * 50), (y * 50));
+			x++;
+		}
+		y++;
+	}
+}
+void	ft_count(t_elements *s, char **map)
+{
+	int	x;
+	int	y;
+
+	y = 0;
+	while (map[y])
+	{
+		x = 0;
+		while (map[y][x])
+		{
+			if (map[y][x] == 'C')
+				s->c++;
+			x++;
+		}
+	}
 }
