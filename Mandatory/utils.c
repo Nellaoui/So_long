@@ -6,7 +6,7 @@
 /*   By: nelallao <nelallao@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/04/03 22:38:13 by nelallao          #+#    #+#             */
-/*   Updated: 2023/04/08 19:52:31 by nelallao         ###   ########.fr       */
+/*   Updated: 2023/04/12 22:17:52 by nelallao         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -58,6 +58,8 @@ char	*ft_map_holder(char *string)
 	char static	map_data[500000];
 
 	fd = open(string, O_RDONLY);
+	if (read(fd, map_data, BUFFER_SIZE) == 0)
+		exit(EXIT_FAILURE);
 	if (fd < 0)
 	{
 		ft_putstr_fd("Error Map cannot be loaded\n", 2);
@@ -66,4 +68,40 @@ char	*ft_map_holder(char *string)
 	else
 		read(fd, map_data, BUFFER_SIZE);
 	return (map_data);
+}
+
+int	ft_count(char **map)
+{
+	int	x;
+	int	y;
+	int	i;
+
+	y = 0;
+	i = 0;
+	while (map[y])
+	{
+		x = 0;
+		while (map[y][x])
+		{
+			if (map[y][x] == 'C')
+				i++;
+			x++;
+		}
+		y++;
+	}
+	return (i);
+}
+
+int	ft_count_width(char **map)
+{
+	int	y;
+	int	x;
+
+	y = 0;
+	x = 0;
+	while (map[y][x])
+	{
+		x++;
+	}
+	return (x);
 }

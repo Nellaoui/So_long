@@ -30,6 +30,8 @@
 		"string_view": "c",
 		"unordered_map": "c",
 		"unordered_set": "c",
-		"vector": "c"
+		"vector": "c",
+		"stdio.h": "c",
+		"libft.h": "c"
 	}
 }

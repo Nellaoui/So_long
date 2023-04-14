@@ -6,7 +6,7 @@
 /*   By: nelallao <nelallao@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/04/03 22:16:58 by nelallao          #+#    #+#             */
-/*   Updated: 2023/04/09 23:16:39 by nelallao         ###   ########.fr       */
+/*   Updated: 2023/04/13 21:23:44 by nelallao         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -48,7 +48,8 @@ int	ft_check_for_double_line(char *map_data)
 	i = 0;
 	while (map_data[i])
 	{
-		if (map_data[i] == '\n' && map_data[i + 1] == '\n')
+		if ((map_data[i] == '\n' && map_data[i + 1] == '\n')
+			|| map_data[0] == '\n')
 			return (true);
 		i++;
 	}
@@ -82,29 +83,27 @@ int	ft_check_map_walls(char **splited)
 
 int	ft_check_elements(char **split)
 {
-	t_elements	elements;
+	t_elements	s;
 
-	ft_initialize_elements(&elements);
-	while (split[elements.y])
+	ft_initialize_elements(&s);
+	while (split[s.y])
 	{
-		elements.x = 0;
-		while (split[elements.y][elements.x])
+		s.x = 0;
+		while (split[s.y][s.x])
 		{
-			if (split[elements.y][elements.x] == 'C')
-				elements.c++;
-			if (split[elements.y][elements.x] == 'P')
-				elements.p++;
-			if (split[elements.y][elements.x] == 'E')
-				elements.e++;
-			if (split[elements.y][elements.x] != '0'
-			&& split[elements.y][elements.x] != '1')
-				elements.random_data++;
-		elements.x++;
+			if (split[s.y][s.x] == 'C')
+				s.c++;
+			else if (split[s.y][s.x] == 'P')
+				s.p++;
+			else if (split[s.y][s.x] == 'E')
+				s.e++;
+			else if (split[s.y][s.x] != '0' && split[s.y][s.x] != '1')
+				s.random_data++;
+		s.x++;
 		}
-		elements.y++;
+		s.y++;
 	}
-	if (elements.c <= 0 || (elements.p > 1 || elements.p <= 0)
-		|| (elements.e > 1 || elements.e <= 0) || elements.random_data < 0)
+	if (s.c <= 0 || s.p != 1 || s.e != 1 || s.random_data != 0)
 		return (true);
 	return (false);
 }
